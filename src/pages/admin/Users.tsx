@@ -60,14 +60,16 @@ export default function Users() {
 
   const { data: usersData } = useQuery({
     queryKey: ["admin", "users"],
-    queryFn: () => api.get<PaginatedResponse<User>>("/admin/users"),
+    queryFn: () => api.get<PaginatedResponse<User> | User[]>("/admin/users"),
   });
   const { data: roles = [] } = useQuery({
     queryKey: ["admin", "roles"],
     queryFn: () => api.get<Role[]>("/admin/roles"),
   });
 
-  const users = usersData?.results ?? [];
+  const users: User[] = Array.isArray(usersData)
+    ? usersData
+    : (usersData?.results ?? []);
   const roleList = Array.isArray(roles) ? roles : [];
 
   const createMut = useMutation({

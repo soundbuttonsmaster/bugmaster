@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { FILE_BASE_URL } from "@/lib/api";
+import { api } from "@/lib/api";
+import { getAttachmentUrl } from "@/lib/api";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -113,7 +114,7 @@ export default function MyBugReports() {
         {stats.map((stat, i) => (
           <Card
             key={i}
-            className={`p-5 bg-white/90 backdrop-blur-sm border ${stat.borderColor} shadow-md hover:shadow-lg transition-all duration-300`}
+            className={`p-5 bg-white/90 backdrop-blur-sm border ${stat.borderColor} shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02]`}
           >
             <div className="flex items-center justify-between">
               <div>
@@ -216,7 +217,7 @@ export default function MyBugReports() {
                     )}
                     {b.attachment && (
                       <a
-                        href={`${FILE_BASE_URL}${b.attachment}`}
+                        href={getAttachmentUrl(b.attachment) ?? "#"}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:underline"

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { FILE_BASE_URL } from "@/lib/api";
+import { getAttachmentUrl } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -135,7 +135,7 @@ export default function BugReports() {
                   )}
                   {b.attachment && (
                     <a
-                      href={`${FILE_BASE_URL}${b.attachment}`}
+                      href={getAttachmentUrl(b.attachment) ?? "#"}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="block text-sm text-primary hover:underline"

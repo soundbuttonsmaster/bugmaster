@@ -1,5 +1,15 @@
 export const API_BASE_URL = "https://api-s-t.softsove.com/api";
-export const FILE_BASE_URL = "https://api-s-t.softsove.com/media";
+const API_ORIGIN = "https://api-s-t.softsove.com";
+/** @deprecated Use getAttachmentUrl() to avoid double /media/ in URLs */
+export const FILE_BASE_URL = API_ORIGIN + "/media";
+
+/** Build full URL for an attachment so /media/ is not duplicated. */
+export function getAttachmentUrl(attachment: string | null | undefined): string | null {
+  if (!attachment) return null;
+  if (attachment.startsWith("http")) return attachment;
+  const path = attachment.startsWith("/") ? attachment : `/${attachment}`;
+  return `${API_ORIGIN}${path}`;
+}
 
 export class ApiError extends Error {
   constructor(

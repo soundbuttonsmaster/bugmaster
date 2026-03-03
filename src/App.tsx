@@ -48,7 +48,7 @@ function App() {
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Navigate to="/signin" replace />} />
+              <Route path="/" element={<SignIn />} />
               <Route path="/signin" element={<SignIn />} />
 
               <Route
