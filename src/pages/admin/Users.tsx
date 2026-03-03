@@ -37,10 +37,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import type { User, Role } from "@/lib/types";
-import type { PaginatedResponse } from "@/lib/types";
 
 export default function Users() {
   const [open, setOpen] = useState(false);
@@ -58,18 +57,19 @@ export default function Users() {
   const { toast } = useToast();
   const qc = useQueryClient();
 
-  const { data: usersData } = useQuery({
+  const { data: usersData, isLoading, error } = useQuery({
     queryKey: ["admin", "users"],
-    queryFn: () => api.get<PaginatedResponse<User> | User[]>("/admin/users"),
+    queryFn: async () => {
+      const res = await api.get<User[] | { results?: User[] }>("/admin/users");
+      return Array.isArray(res) ? res : res?.results ?? [];
+    },
   });
   const { data: roles = [] } = useQuery({
     queryKey: ["admin", "roles"],
     queryFn: () => api.get<Role[]>("/admin/roles"),
   });
 
-  const users: User[] = Array.isArray(usersData)
-    ? usersData
-    : (usersData?.results ?? []);
+  const users: User[] = usersData ?? [];
   const roleList = Array.isArray(roles) ? roles : [];
 
   const createMut = useMutation({
@@ -93,9 +93,9 @@ export default function Users() {
 
   const updateMut = useMutation({
     mutationFn: () =>
-      api.post(`/admin/users/${editing!.id}`, {
-        first_name: firstName,
-        last_name: lastName,
+      api.post<User>(`/admin/users/${editing!.id}`, {
+        first_name: firstName.trim() || undefined,
+        last_name: lastName.trim() || undefined,
         is_active: isActive,
       }),
     onSuccess: async () => {
@@ -167,6 +167,18 @@ export default function Users() {
       </div>
 
       <Card>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="w-10 h-10 animate-spin text-muted-foreground" />
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4">
+            <AlertCircle className="w-12 h-12 text-destructive mb-3" />
+            <p className="text-destructive font-medium">Failed to load users</p>
+            <p className="text-sm text-muted-foreground mt-1">{error instanceof Error ? error.message : "Unknown error"}</p>
+          </div>
+        ) : (
+        <>
         <Table>
           <TableHeader>
             <TableRow>
@@ -178,7 +190,14 @@ export default function Users() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((u) => (
+            {users.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">
+                  No users found. List returns non-admin users only (admins excluded).
+                </TableCell>
+              </TableRow>
+            ) : (
+              users.map((u) => (
               <TableRow key={u.id}>
                 <TableCell className="font-medium">{u.full_name}</TableCell>
                 <TableCell>{u.email}</TableCell>
@@ -198,9 +217,12 @@ export default function Users() {
                   </div>
                 </TableCell>
               </TableRow>
-            ))}
+              ))
+            )}
           </TableBody>
         </Table>
+        </>
+        )}
       </Card>
 
       <Dialog open={open} onOpenChange={setOpen}>
