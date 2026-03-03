@@ -40,8 +40,8 @@ export default function ReportBug() {
       if (attachment) form.append("attachment", attachment);
       return api.post(`/user/sites/${id}/report-bug`, form, true);
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["user", "my-bug-reports"] });
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["user", "my-bug-reports"] });
       toast({ title: "Bug report submitted" });
       navigate("/user/bug-reports");
     },

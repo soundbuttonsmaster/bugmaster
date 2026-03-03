@@ -42,8 +42,8 @@ export default function BugReports() {
   const statusMut = useMutation({
     mutationFn: ({ id, status }: { id: number; status: string }) =>
       api.post(`/admin/bug-reports/${id}/status`, { status }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin", "bug-reports"] });
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "bug-reports"] });
       toast({ title: "Status updated" });
     },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),

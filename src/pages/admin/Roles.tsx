@@ -60,8 +60,8 @@ export default function Roles() {
         description: description || undefined,
         permission_ids: permissionIds.length ? permissionIds : undefined,
       }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin", "roles"] });
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "roles"] });
       setOpen(false);
       resetForm();
       toast({ title: "Role created" });
@@ -76,8 +76,8 @@ export default function Roles() {
         description: description || undefined,
         permission_ids: permissionIds,
       }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin", "roles"] });
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "roles"] });
       setEditing(null);
       setOpen(false);
       resetForm();
@@ -88,8 +88,8 @@ export default function Roles() {
 
   const deleteMut = useMutation({
     mutationFn: (id: number) => api.delete(`/admin/roles/${id}`),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin", "roles"] });
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "roles"] });
       setDeleteId(null);
       toast({ title: "Role deleted" });
     },

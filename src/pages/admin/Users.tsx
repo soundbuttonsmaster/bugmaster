@@ -80,8 +80,8 @@ export default function Users() {
         confirm_password: confirmPassword,
         role_id: roleId ? Number(roleId) : undefined,
       }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "users"] });
       setOpen(false);
       resetForm();
       toast({ title: "User created" });
@@ -96,8 +96,8 @@ export default function Users() {
         last_name: lastName,
         is_active: isActive,
       }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "users"] });
       setEditing(null);
       setOpen(false);
       resetForm();
@@ -109,8 +109,8 @@ export default function Users() {
   const assignRoleMut = useMutation({
     mutationFn: (userId: number) =>
       api.post(`/admin/users/${userId}/assign-role`, { role_id: Number(assignRoleId) }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "users"] });
       setAssignRoleUserId(null);
       setAssignRoleId("");
       toast({ title: "Role assigned" });
@@ -120,8 +120,8 @@ export default function Users() {
 
   const deleteMut = useMutation({
     mutationFn: (id: number) => api.delete(`/admin/users/${id}`),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "users"] });
       setDeleteId(null);
       toast({ title: "User deleted" });
     },

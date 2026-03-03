@@ -27,11 +27,24 @@ export default function UserSiteChecklist() {
   const respondMut = useMutation({
     mutationFn: ({ itemId, response }: { itemId: number; response: boolean }) =>
       api.post(`/user/checklist/${itemId}/respond`, { response }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["user", "sites", id, "checklist"] });
+    onMutate: async ({ itemId, response }) => {
+      await qc.cancelQueries({ queryKey: ["user", "sites", id, "checklist"] });
+      const prev = qc.getQueryData<UserChecklistItem[]>(["user", "sites", id, "checklist"]);
+      qc.setQueryData(["user", "sites", id, "checklist"], (old: UserChecklistItem[] | undefined) =>
+        (old ?? []).map((item) =>
+          item.id === itemId ? { ...item, my_response: response } : item
+        )
+      );
+      return { prev };
+    },
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["user", "sites", id, "checklist"] });
       toast({ title: "Response saved" });
     },
-    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+    onError: (e: Error, _vars, ctx) => {
+      if (ctx?.prev != null) qc.setQueryData(["user", "sites", id, "checklist"], ctx.prev);
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    },
   });
 
   const list = Array.isArray(checklist) ? checklist : [];

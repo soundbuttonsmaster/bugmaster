@@ -71,8 +71,8 @@ export default function Sites() {
         link: link || undefined,
         launch_date: launchDate || undefined,
       }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin", "sites"] });
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "sites"] });
       setOpen(false);
       resetForm();
       toast({ title: "Site created" });
@@ -87,8 +87,8 @@ export default function Sites() {
         link: link || undefined,
         launch_date: launchDate || undefined,
       }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin", "sites"] });
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "sites"] });
       setEditing(null);
       setOpen(false);
       resetForm();
@@ -99,8 +99,8 @@ export default function Sites() {
 
   const deleteMut = useMutation({
     mutationFn: (id: number) => api.delete(`/admin/sites/${id}`),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin", "sites"] });
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "sites"] });
       setDeleteId(null);
       toast({ title: "Site deleted" });
     },

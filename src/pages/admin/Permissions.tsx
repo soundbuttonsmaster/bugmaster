@@ -56,8 +56,8 @@ export default function Permissions() {
         name,
         description: description || undefined,
       }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin", "permissions"] });
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "permissions"] });
       setOpen(false);
       resetForm();
       toast({ title: "Permission created" });
@@ -71,8 +71,8 @@ export default function Permissions() {
         name: name || undefined,
         description: description || undefined,
       }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin", "permissions"] });
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "permissions"] });
       setEditing(null);
       setOpen(false);
       resetForm();
@@ -83,8 +83,8 @@ export default function Permissions() {
 
   const deleteMut = useMutation({
     mutationFn: (id: number) => api.delete(`/admin/permissions/${id}`),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin", "permissions"] });
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "permissions"] });
       setDeleteId(null);
       toast({ title: "Permission deleted" });
     },

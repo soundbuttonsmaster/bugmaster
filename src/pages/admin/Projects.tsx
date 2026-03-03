@@ -49,8 +49,8 @@ export default function Projects() {
 
   const createMut = useMutation({
     mutationFn: (n: string) => api.post("/admin/projects", { name: n }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin", "projects"] });
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "projects"] });
       setOpen(false);
       setName("");
       toast({ title: "Project created" });
@@ -60,8 +60,8 @@ export default function Projects() {
 
   const updateMut = useMutation({
     mutationFn: ({ id, name }: { id: number; name: string }) => api.post(`/admin/projects/${id}`, { name }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin", "projects"] });
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "projects"] });
       setEditing(null);
       setName("");
       toast({ title: "Project updated" });
@@ -71,8 +71,8 @@ export default function Projects() {
 
   const deleteMut = useMutation({
     mutationFn: (id: number) => api.delete(`/admin/projects/${id}`),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["admin", "projects"] });
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "projects"] });
       setDeleteId(null);
       toast({ title: "Project deleted" });
     },
