@@ -29,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Upload, Loader2, ExternalLink } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, Loader2, ExternalLink, ThumbsUp, ThumbsDown, Printer } from "lucide-react";
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import type { ChecklistItem } from "@/lib/types";
@@ -101,6 +101,17 @@ export default function AdminChecklistPopup({
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
+  const respondMut = useMutation({
+    mutationFn: ({ itemId, response }: { itemId: number; response: boolean }) =>
+      api.post(`/admin/checklist/${itemId}/respond`, { response }),
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "sites", siteId, "checklist"] });
+      qc.invalidateQueries({ queryKey: ["admin", "sites"] });
+      toast({ title: "Response recorded" });
+    },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+
   const importMut = useMutation({
     mutationFn: (file: File) => {
       const form = new FormData();
@@ -156,11 +167,18 @@ export default function AdminChecklistPopup({
               </div>
               <div className="flex items-center gap-2">
                 {siteId && (
-                  <Link to={`/admin/sites/${siteId}/checklist`} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="sm">
-                      <ExternalLink className="w-4 h-4 mr-1" /> Full page
-                    </Button>
-                  </Link>
+                  <>
+                    <Link to={`/admin/sites/${siteId}/checklist/print`} target="_blank" rel="noopener noreferrer">
+                      <Button variant="outline" size="sm">
+                        <Printer className="w-4 h-4 mr-1" /> Print
+                      </Button>
+                    </Link>
+                    <Link to={`/admin/sites/${siteId}/checklist`} target="_blank" rel="noopener noreferrer">
+                      <Button variant="outline" size="sm">
+                        <ExternalLink className="w-4 h-4 mr-1" /> Full page
+                      </Button>
+                    </Link>
+                  </>
                 )}
                 <input
                   ref={fileInputRef}
@@ -192,10 +210,11 @@ export default function AdminChecklistPopup({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Question</TableHead>
-                    <TableHead className="w-16">Active</TableHead>
-                    <TableHead>Last response</TableHead>
-                    <TableHead className="w-[100px]">Actions</TableHead>
+                <TableHead>Question</TableHead>
+                <TableHead className="w-16">Active</TableHead>
+                <TableHead>Last response</TableHead>
+                <TableHead className="w-[140px]">Admin respond</TableHead>
+                <TableHead className="w-[100px]">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -224,6 +243,28 @@ export default function AdminChecklistPopup({
                               {item.last_responded_at && ` • ${new Date(item.last_responded_at).toLocaleString()}`}
                             </span>
                           )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button
+                            variant={item.last_response === "Yes" ? "default" : "outline"}
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => respondMut.mutate({ itemId: item.id, response: true })}
+                            disabled={respondMut.isPending}
+                          >
+                            <ThumbsUp className="w-3 h-3 mr-0.5" /> Yes
+                          </Button>
+                          <Button
+                            variant={item.last_response === "No" ? "destructive" : "outline"}
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => respondMut.mutate({ itemId: item.id, response: false })}
+                            disabled={respondMut.isPending}
+                          >
+                            <ThumbsDown className="w-3 h-3 mr-0.5" /> No
+                          </Button>
                         </div>
                       </TableCell>
                       <TableCell>

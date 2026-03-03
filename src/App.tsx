@@ -14,6 +14,7 @@ import Dashboard from "./pages/admin/Dashboard";
 import Projects from "./pages/admin/Projects";
 import Sites from "./pages/admin/Sites";
 import SiteChecklist from "./pages/admin/SiteChecklist";
+import SiteChecklistPrint from "./pages/admin/SiteChecklistPrint";
 import ChecklistTemplates from "./pages/admin/ChecklistTemplates";
 import Settings from "./pages/admin/Settings";
 import BugReports from "./pages/admin/BugReports";
@@ -50,6 +51,15 @@ function App() {
             <Routes>
               <Route path="/" element={<SignIn />} />
               <Route path="/signin" element={<SignIn />} />
+
+              <Route
+                path="/admin/sites/:id/checklist/print"
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <SiteChecklistPrint />
+                  </ProtectedRoute>
+                }
+              />
 
               <Route
                 path="/admin"

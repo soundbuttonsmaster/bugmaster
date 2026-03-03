@@ -31,7 +31,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, ArrowLeft, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, ArrowLeft, Upload, ThumbsUp, ThumbsDown, Printer } from "lucide-react";
 import { useState, useRef } from "react";
 import type { ChecklistItem, Site } from "@/lib/types";
 import { getCompletionColorClasses } from "@/lib/utils";
@@ -95,6 +95,17 @@ export default function SiteChecklist() {
       qc.invalidateQueries({ queryKey: ["admin", "sites", id] });
       setDeleteId(null);
       toast({ title: "Checklist item deleted" });
+    },
+    onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
+  });
+
+  const respondMut = useMutation({
+    mutationFn: ({ itemId, response }: { itemId: number; response: boolean }) =>
+      api.post(`/admin/checklist/${itemId}/respond`, { response }),
+    onSuccess: async () => {
+      await qc.refetchQueries({ queryKey: ["admin", "sites", id, "checklist"] });
+      qc.invalidateQueries({ queryKey: ["admin", "sites", id] });
+      toast({ title: "Response recorded" });
     },
     onError: (e: Error) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
@@ -168,6 +179,11 @@ export default function SiteChecklist() {
               if (file) importMut.mutate(file);
             }}
           />
+          <Link to={`/admin/sites/${id}/checklist/print`} target="_blank" rel="noopener noreferrer">
+            <Button variant="outline">
+              <Printer className="w-4 h-4 mr-2" /> Print checklist
+            </Button>
+          </Link>
           <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={importMut.isPending}>
             <Upload className="w-4 h-4 mr-2" /> Import CSV
           </Button>
@@ -184,6 +200,7 @@ export default function SiteChecklist() {
               <TableHead>Question</TableHead>
               <TableHead>Active</TableHead>
               <TableHead>Last response</TableHead>
+              <TableHead className="w-[200px]">Admin respond</TableHead>
               <TableHead className="w-[120px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -213,6 +230,28 @@ export default function SiteChecklist() {
                         {item.last_responded_at && ` • ${new Date(item.last_responded_at).toLocaleString()}`}
                       </span>
                     )}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-1">
+                    <Button
+                      variant={item.last_response === "Yes" ? "default" : "outline"}
+                      size="sm"
+                      className="h-8"
+                      onClick={() => respondMut.mutate({ itemId: item.id, response: true })}
+                      disabled={respondMut.isPending}
+                    >
+                      <ThumbsUp className="w-3.5 h-3.5 mr-1" /> Yes
+                    </Button>
+                    <Button
+                      variant={item.last_response === "No" ? "destructive" : "outline"}
+                      size="sm"
+                      className="h-8"
+                      onClick={() => respondMut.mutate({ itemId: item.id, response: false })}
+                      disabled={respondMut.isPending}
+                    >
+                      <ThumbsDown className="w-3.5 h-3.5 mr-1" /> No
+                    </Button>
                   </div>
                 </TableCell>
                 <TableCell>

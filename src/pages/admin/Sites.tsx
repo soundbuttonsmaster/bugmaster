@@ -37,7 +37,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, ClipboardList, Globe, Search, Filter, Loader2, ExternalLink } from "lucide-react";
+import { Plus, Pencil, Trash2, ClipboardList, Globe, Search, Filter, Loader2, ExternalLink, Printer } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useMemo } from "react";
 import type { Site, Project } from "@/lib/types";
@@ -359,6 +359,11 @@ export default function Sites() {
                       >
                         <ClipboardList className="w-4 h-4 mr-1" /> Checklist
                       </Button>
+                      <Link to={`/admin/sites/${s.id}/checklist/print`} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                        <Button variant="outline" size="sm" className="h-8">
+                          <Printer className="w-4 h-4 mr-1" /> Print
+                        </Button>
+                      </Link>
                       <Link to={`/admin/sites/${s.id}/checklist`} target="_blank" rel="noopener noreferrer" className="shrink-0">
                         <Button variant="ghost" size="sm" className="h-8">
                           <ExternalLink className="w-3.5 h-3.5" />
